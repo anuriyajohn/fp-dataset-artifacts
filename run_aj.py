@@ -118,7 +118,7 @@ def main():
         # Modify the labels for the selected indices in the new dataset
         filtered_snli_dataset = dataset['train']
         for idx in filtered_indices:
-            dataset['label'][idx] = 1 - dataset['label'][idx]
+            filtered_snli_dataset['label'][idx] = 1 - filtered_snli_dataset['label'][idx]
 
         ##########################################
 
