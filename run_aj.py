@@ -1,4 +1,3 @@
-
 import datasets
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, \
     AutoModelForQuestionAnswering, Trainer, TrainingArguments, HfArgumentParser
@@ -72,8 +71,6 @@ def main():
         # Load the raw data
         dataset = datasets.load_dataset(*dataset_id)
 
-
-
     # NLI models need to have the output label count specified (label 0 is "entailed", 1 is "neutral", and 2 is "contradiction")
     task_kwargs = {'num_labels': 3} if args.task == 'nli' else {}
 
@@ -110,11 +107,19 @@ def main():
         # Extract indices where correctness is between 3 and 4
         # filtered_indices = [entry["index"] for entry in map_coordinates_data if 3 <= entry["correctness"] <= 4]
         # Extract indices where variability is greater than 0.1
-        filtered_indices = [entry["index"] for entry in map_coordinates_data if entry["variability"] >= 0.1]
-        #filtered_indices = [0,1,2,3,4,5]
+        # filtered_indices = [entry["index"] for entry in map_coordinates_data if entry["variability"] >= 0.1]
+        #
+        # # Use dataset.filter to filter the SNLI dataset based on the selected indices
+        # filtered_snli_dataset = dataset['train'].filter(lambda example, idx: idx in filtered_indices, with_indices=True)
 
-        # Use dataset.filter to filter the SNLI dataset based on the selected indices
-        filtered_snli_dataset = dataset['train'].filter(lambda example, idx: idx in filtered_indices, with_indices=True)
+        ### flip indices for hard cases low variability & low correctness
+        filtered_indices = [entry["index"] for entry in map_coordinates_data
+                            if entry["variability"] < 0.1 and entry["correctness"] <= 2]
+        # Modify the labels for the selected indices in the new dataset
+        filtered_snli_dataset = dataset['train']
+        for idx in filtered_indices:
+            dataset['label'][idx] = 1 - dataset['label'][idx]
+
         ##########################################
 
     train_dataset = None
@@ -122,7 +127,7 @@ def main():
     train_dataset_featurized = None
     eval_dataset_featurized = None
     if training_args.do_train:
-        #train_dataset = dataset['train']
+        # train_dataset = dataset['train']
         train_dataset = filtered_snli_dataset
         if args.max_train_samples:
             train_dataset = train_dataset.select(range(args.max_train_samples))
@@ -160,10 +165,10 @@ def main():
     elif args.task == 'nli':
         compute_metrics = compute_accuracy
 
-
     # This function wraps the compute_metrics function, storing the model's predictions
     # so that they can be dumped along with the computed metrics
     eval_predictions = None
+
     def compute_metrics_and_store_predictions(eval_preds):
         nonlocal eval_predictions
         eval_predictions = eval_preds
