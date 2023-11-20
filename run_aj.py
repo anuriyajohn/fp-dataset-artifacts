@@ -115,6 +115,7 @@ def main():
         random.seed(42)
         # Generate a list of 10224 unique random indices between 0 and 54900
         filtered_indices = random.sample(range(54900), 10224)
+        print('filtered indices:', len(filtered_indices))
 
         # # Use dataset.filter to filter the SNLI dataset based on the selected indices
         filtered_snli_dataset = dataset['train'].filter(lambda example, idx: idx in filtered_indices, with_indices=True)
