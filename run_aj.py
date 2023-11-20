@@ -108,7 +108,9 @@ def main():
             map_coordinates_data = [json.loads(line) for line in file]
 
         # Extract indices where correctness is between 3 and 4
-        filtered_indices = [entry["index"] for entry in map_coordinates_data if 3 <= entry["correctness"] <= 4]
+        # filtered_indices = [entry["index"] for entry in map_coordinates_data if 3 <= entry["correctness"] <= 4]
+        # Extract indices where variability is greater than 0.1
+        filtered_indices = [entry["index"] for entry in map_coordinates_data if entry["variability"] >= 0.1]
         #filtered_indices = [0,1,2,3,4,5]
 
         # Use dataset.filter to filter the SNLI dataset based on the selected indices
