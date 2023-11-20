@@ -108,17 +108,24 @@ def main():
         # filtered_indices = [entry["index"] for entry in map_coordinates_data if 3 <= entry["correctness"] <= 4]
         # Extract indices where variability is greater than 0.1
         # filtered_indices = [entry["index"] for entry in map_coordinates_data if entry["variability"] >= 0.1]
-        #
+
+        # Random filtered indices
+        import random
+        # Set the seed for reproducibility
+        random.seed(42)
+        # Generate a list of 10224 unique random indices between 0 and 54900
+        filtered_indices = random.sample(range(54900), 10224)
+
         # # Use dataset.filter to filter the SNLI dataset based on the selected indices
-        # filtered_snli_dataset = dataset['train'].filter(lambda example, idx: idx in filtered_indices, with_indices=True)
+        filtered_snli_dataset = dataset['train'].filter(lambda example, idx: idx in filtered_indices, with_indices=True)
 
         ### flip indices for hard cases low variability & low correctness
-        filtered_indices = [entry["index"] for entry in map_coordinates_data
-                            if entry["variability"] < 0.1 and entry["correctness"] <= 2]
-        # Modify the labels for the selected indices in the new dataset
-        filtered_snli_dataset = dataset['train']
-        for idx in filtered_indices:
-            filtered_snli_dataset['label'][idx] = 1 - filtered_snli_dataset['label'][idx]
+        # filtered_indices = [entry["index"] for entry in map_coordinates_data
+        #                     if entry["variability"] < 0.1 and entry["correctness"] <= 2]
+        # # Modify the labels for the selected indices in the new dataset
+        # filtered_snli_dataset = dataset['train']
+        # for idx in filtered_indices:
+        #     filtered_snli_dataset['label'][idx] = 1 - filtered_snli_dataset['label'][idx]
 
         ##########################################
 
